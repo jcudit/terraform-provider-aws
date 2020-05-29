@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/terraform-providers/terraform-provider-aws/aws/internal/test"
 )
 
 func init() {
@@ -79,10 +80,9 @@ func TestAccAWSDBParameterGroup_basic(t *testing.T) {
 	groupName := fmt.Sprintf("parameter-group-test-terraform-%d", acctest.RandInt())
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:            func() { testAccPreCheck(t) },
-		Providers:           testAccProviders,
-		CheckDestroy:        testAccCheckAWSDBParameterGroupDestroy,
-		DisableBinaryDriver: true,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckAWSDBParameterGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAWSDBParameterGroupConfig(groupName),
@@ -91,8 +91,10 @@ func TestAccAWSDBParameterGroup_basic(t *testing.T) {
 					testAccCheckAWSDBParameterGroupAttributes(&v, groupName),
 					resource.TestCheckResourceAttr(resourceName, "name", groupName),
 					resource.TestCheckResourceAttr(resourceName, "family", "mysql5.6"),
-					resource.TestCheckResourceAttr(resourceName, "parameter.1708034931.name", "character_set_results"),
-					resource.TestCheckResourceAttr(resourceName, "parameter.1708034931.value", "utf8"),
+					test.TestCheckTypeSetElemNestedAttrs(resourceName, "parameter", map[string]string{
+						"name":  "character_set_results",
+						"value": "utf8",
+					}),
 					resource.TestCheckResourceAttr(resourceName, "parameter.2421266705.name", "character_set_server"),
 					resource.TestCheckResourceAttr(resourceName, "parameter.2421266705.value", "utf8"),
 					resource.TestCheckResourceAttr(resourceName, "parameter.2478663599.name", "character_set_client"),

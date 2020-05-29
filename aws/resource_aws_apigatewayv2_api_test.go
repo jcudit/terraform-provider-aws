@@ -12,6 +12,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+
+	"github.com/terraform-providers/terraform-provider-aws/aws/internal/test"
 )
 
 func init() {
@@ -374,10 +376,9 @@ func TestAccAWSAPIGatewayV2Api_CorsConfiguration(t *testing.T) {
 	rName := acctest.RandomWithPrefix("tf-acc-test")
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:            func() { testAccPreCheck(t) },
-		Providers:           testAccProviders,
-		CheckDestroy:        testAccCheckAWSAPIGatewayV2ApiDestroy,
-		DisableBinaryDriver: true,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckAWSAPIGatewayV2ApiDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAWSAPIGatewayV2ApiConfig_corsConfiguration(rName),
@@ -389,7 +390,7 @@ func TestAccAWSAPIGatewayV2Api_CorsConfiguration(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "cors_configuration.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "cors_configuration.0.allow_credentials", "false"),
 					resource.TestCheckResourceAttr(resourceName, "cors_configuration.0.allow_headers.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "cors_configuration.0.allow_headers.2053999599", "Authorization"),
+					test.TestCheckTypeSetElemAttr(resourceName, "cors_configuration.0.allow_headers", "Authorization"),
 					resource.TestCheckResourceAttr(resourceName, "cors_configuration.0.allow_methods.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "cors_configuration.0.allow_methods.4248514160", "GET"),
 					resource.TestCheckResourceAttr(resourceName, "cors_configuration.0.allow_methods.2928708052", "put"),
